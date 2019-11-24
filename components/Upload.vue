@@ -1,17 +1,18 @@
 <template>
   <div>
+    <p style="font-size: 100px" v-if="latex">{{ latex }}</p>
     <div id="signature_pad" v-if="showPad">
       <VueSignaturePad
         width="512px"
         height="512px"
         ref="signaturePad"
-        v-bind:options="{ minWidth:1.5, maxWidth: 2, throttle: 0, backgroundColor: 'rgba(255,255,255)' }"
+        v-bind:options="{ minWidth:1.5, maxWidth: 1.5, throttle: 0, backgroundColor: 'rgba(255,255,255)' }"
         v-bind:customStyle="{ border: 'black 3px solid' }"
       />
       <div id="operation">
         <Button type="primary" @click="undo">撤销</Button>
         <Button type="primary" @click="clearPad">清空</Button>
-        <Button type="primary" @click="uploadSignature">上传</Button>
+        <Button type="primary" @click="uploadSignature" :disabled="loading">上传</Button>
       </div>
     </div>
     <div id="upload">
@@ -36,7 +37,8 @@ export default {
       loading: false,
       img: null,
       res: null,
-      showPad: false
+      showPad: false,
+      latex: null
     }
   },
   mounted() {
@@ -65,6 +67,7 @@ export default {
       })
       console.log(res)
       this.res = res
+      this.latex = res.data
       this.loading = false
     },
     uploadSignature() {
@@ -95,12 +98,15 @@ export default {
       this.file = null
       this.img = null
       this.res = null
+      this.latex = null
     },
     undo() {
       this.$refs.signaturePad.undoSignature()
     },
     clearPad() {
       this.$refs.signaturePad.clearSignature()
+      this.latex = null
+      this.file = null
     },
     togglePad() {
       this.showPad = !this.showPad
